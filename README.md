@@ -18,3 +18,11 @@ Tech Stack:
 
 # TODO List:
 - Write a more secure way to verify api_key, using the principles here: https://www.reddit.com/r/FastAPI/comments/zid4rj/fastapi_api_authentication_key_security/
+
+
+
+# How to run:
+
+```bash
+sudo docker compose --env-file confidential.env --profile frontend-dev up --build --attach-dependencies
+```

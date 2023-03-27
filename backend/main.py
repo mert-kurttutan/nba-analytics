@@ -25,7 +25,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 # from worker.scheduled_tasks import create_task
 
-app = fastapi.FastAPI() # title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json")
+app = fastapi.FastAPI(title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json")
 startup_time: datetime = utcnow()
 
 
@@ -103,7 +103,7 @@ if settings.ENABLE_PROM_METRICS:
         instrumentator.expose(app)
 
 
-if settings.RATE_LIMIT and False:
+if settings.RATE_LIMIT:
 
     @app.on_event("startup")
     async def connect_redis():
