@@ -1,0 +1,8 @@
+model_name: 'base_mlp'
+n_dims:
+  - 166
+  - 1024
+  - 128
+activation: "relu"
+fc_pdrop: 0.16
+n_classes: 2

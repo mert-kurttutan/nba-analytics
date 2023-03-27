@@ -1,0 +1,78 @@
+version: "3.8"
+
+services:
+  # Use `docker compose --profile backend-dev up --build --attach-dependencies` to start a database and work and the backend.
+
+  # Use `docker compose --profile frontend-dev up --build --attach-dependencies` to start the services needed to work on the frontend. If you want to also run the inference, add a second `--profile inference` argument.
+
+  # The profile ci is used by CI automations. (i.e E2E testing)
+
+  # This DB is for the FastAPI Backend.
+  db:
+    image: postgres
+    pull_policy: always
+    restart: always
+    profiles: ["frontend-dev", "backend-dev", "ci"]
+    # ports:
+    #   - ${POSTGRES_PORT}:5432
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+
+
+
+  # Redis - caching + rate limiting on BE
+  redis:
+    image: redis
+    restart: always
+    profiles: ["frontend-dev", "backend-dev", "ci"]
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+  # insights host - redis:6379
+  redis-insights:
+    image: redislabs/redisinsight:latest
+    profiles: ["backend-dev"]
+    ports:
+      - 8001:8001
+
+
+  # The oassist backend service.
+  backend:
+    build:
+      dockerfile: docker/Dockerfile.backend
+      context: .
+    image: oasst-backend
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_HOST: db #${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: redis
+      DEBUG_USE_SEED_DATA: True
+      DEBUG_ALLOW_SELF_LABELING: True
+      MAX_WORKERS: 1
+      DEBUG_SKIP_TOXICITY_CALCULATION: False
+      DEBUG_SKIP_EMBEDDING_COMPUTATION: False
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: ["frontend-dev", "ci"]
+    ports:
+      - "8080:8080"
