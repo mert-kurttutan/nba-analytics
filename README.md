@@ -12,11 +12,12 @@ Tech Stack:
 - Apache Airflow (Workflow Automation)
 - AWS (ECS, Lambda, S3, Dynamo DB)
 - Github Actions (for CI)
-- Django Framework (Web App)
+- FastAPI
 
 
 
 # TODO List:
+- Complete the User component
 - Write a more secure way to verify api_key, using the principles here: https://www.reddit.com/r/FastAPI/comments/zid4rj/fastapi_api_authentication_key_security/
 
 

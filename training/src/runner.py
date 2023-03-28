@@ -86,20 +86,9 @@ class ModelRunner():
         data = config_load(data)
         self.init_log(opt, run_conf={"model": model_conf, "data": data, "optimizer": opt_conf})
 
-        train_data, val_data = data["train"], data["val"]
-        assert is_config(train_data)
+        batch_size = 64
 
-        train_loader = get_nba_dataloader(
-            **train_data,
-            **data["mode"]["train"],
-            num_workers=data["workers"],
-        )
-
-        val_loader = get_nba_dataloader(
-            **val_data,
-            **data["mode"]["val"],
-            num_workers=data["workers"],
-        )
+        train_loader, val_loader = get_nba_dataloader(batch_size, False, data["workers"])
 
         n_steps_per_epoch = len(train_loader)
 
@@ -114,10 +103,10 @@ class ModelRunner():
             # on_train_epoch_start
             model.train()
             pbar = tqdm(train_loader, bar_format=TQDM_BAR_FORMAT)  # progress bar
-            for i, (train_x, train_y) in enumerate(pbar):
+            for i, batch in enumerate(pbar):
                 # on_train_batch_start()
                 # Forward
-                train_x, train_y = train_x.to(device), train_y.to(device)
+                train_x, train_y = batch["input"].to(device), batch["label"].to(device)
                 train_y_hat = model(train_x)
                 loss = loss_fn(train_y_hat, train_y)
 
@@ -251,8 +240,8 @@ class ModelRunner():
 
         LOGGER.info(f"Validation {data_name} started")
         dataset_len = 0
-        for x, y in dataloader:
-            x, y = x.to(device), y.to(device)
+        for batch in dataloader:
+            x, y = batch["input"].to(device), batch["label"].to(device)
             dataset_len += x.shape[0]
 
             # start of validation step

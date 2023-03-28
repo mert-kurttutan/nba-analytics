@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 '''Script for webscraping from nba2k website'''
 
+import sys
+
+sys.path.append("nbaetl")
+
 # Local modules
 from nbaetl import extract, utils
 from nbaetl.enums import FileConfig

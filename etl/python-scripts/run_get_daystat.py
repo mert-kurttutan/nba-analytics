@@ -2,6 +2,10 @@
 '''Script to get player stat
 '''
 
+import sys
+
+sys.path.append("nbaetl")
+
 # Local modules
 from nbaetl import extract, utils
 from nbaetl.enums import FileConfig

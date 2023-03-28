@@ -95,7 +95,7 @@ def get_model(config):
         raise NotImplementedError
 
 
-ckpt = torch.load("bin/prototype-v0_best.pt")
+ckpt = torch.load("bin/mlp-latest.pt")
 model_conf = ckpt["model_config"]
 model = get_model(model_conf)
 model = model.to("cpu")

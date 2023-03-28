@@ -1,8 +1,0 @@
-pylint
-ruff
-mypy
-pylint
-pytest
-pytest-cov
-httpx
-sqlalchemy[mypy]
